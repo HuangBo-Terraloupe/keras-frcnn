@@ -110,10 +110,11 @@ print('Num val samples {}'.format(len(val_imgs)))
 data_gen_train = data_generators.get_anchor_gt(train_imgs, classes_count, C, nn.get_img_output_length, K.image_dim_ordering(), mode='train')
 data_gen_val = data_generators.get_anchor_gt(val_imgs, classes_count, C, nn.get_img_output_length,K.image_dim_ordering(), mode='val')
 
+
 if K.image_dim_ordering() == 'th':
-	input_shape_img = (3, None, None)
+	input_shape_img = (3, 600, 800)
 else:
-	input_shape_img = (None, None, 3)
+	input_shape_img = (600, 800, 3)
 
 img_input = Input(shape=input_shape_img)
 roi_input = Input(shape=(None, 4))
@@ -183,6 +184,7 @@ for epoch_num in range(num_epochs):
 			loss_rpn = model_rpn.train_on_batch(X, Y)
 
 			P_rpn = model_rpn.predict_on_batch(X)
+
 
 			R = roi_helpers.rpn_to_roi(P_rpn[0], P_rpn[1], C, K.image_dim_ordering(), use_regr=True, overlap_thresh=0.7, max_boxes=300)
 			# note: calc_iou converts from (x1,y1,x2,y2) to (x,y,w,h) format

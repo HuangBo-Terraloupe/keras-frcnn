@@ -14,6 +14,7 @@ from keras.layers import Input, Add, Dense, Activation, Flatten, Convolution2D, 
 from keras import backend as K
 
 from keras_frcnn.RoiPoolingConv import RoiPoolingConv
+from keras_frcnn.RoiAlign import RegionOfInterest
 from keras_frcnn.FixedBatchNormalization import FixedBatchNormalization
 
 def get_weight_path():
@@ -205,7 +206,7 @@ def classifier_layers(x, input_shape, trainable=False):
     # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
     # (hence a smaller stride in the region that follows the ROI pool)
     if K.backend() == 'tensorflow':
-        x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', input_shape=input_shape, strides=(2, 2), trainable=trainable)
+        x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', input_shape=input_shape, strides=(1, 1), trainable=trainable)
     elif K.backend() == 'theano':
         x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', input_shape=input_shape, strides=(1, 1), trainable=trainable)
 
@@ -236,7 +237,8 @@ def classifier(base_layers, input_rois, num_rois, nb_classes = 21, trainable=Fal
         pooling_regions = 7
         input_shape = (num_rois,1024,7,7)
 
-    out_roi_pool = RoiPoolingConv(pooling_regions, num_rois)([base_layers, input_rois])
+    out_roi_pool = RegionOfInterest()([base_layers, input_rois])
+
     out = classifier_layers(out_roi_pool, input_shape=input_shape, trainable=True)
 
     out = TimeDistributed(Flatten())(out)
