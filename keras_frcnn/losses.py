@@ -13,6 +13,9 @@ lambda_cls_class = 1.0
 epsilon = 1e-4
 
 
+def class_loss_seg(y_pred, y_true):
+	return K.mean(K.categorical_crossentropy(y_pred, y_true))
+
 def rpn_loss_regr(num_anchors):
 	def rpn_loss_regr_fixed_num(y_true, y_pred):
 		if K.image_dim_ordering() == 'th':
